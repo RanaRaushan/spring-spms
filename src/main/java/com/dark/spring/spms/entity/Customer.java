@@ -18,10 +18,6 @@ import org.hibernate.type.SqlTypes;
 @Entity
 public class Customer extends User {
 
-    @Column(name = "name")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    private String name;
-
     @Column(name = "vehicle_no")
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private String vehicleNo;
