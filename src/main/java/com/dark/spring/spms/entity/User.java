@@ -14,6 +14,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "name")
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private String name;
+
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

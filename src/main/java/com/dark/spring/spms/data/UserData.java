@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Data
 public class UserData {
@@ -20,12 +22,19 @@ public class UserData {
 
     private String vehicleNo;
 
-    public User toModel(){
+    private String createdAt;
+
+    private String updatedAt;
+
+    private String lastLogin;
+
+    public Customer toModel(){
         return Customer.builder()
                 .vehicleNo(vehicleNo)
                 .email(email)
                 .name(name)
                 .password(new BCryptPasswordEncoder().encode(password))
+                .lastLogin(LocalDateTime.parse(lastLogin))
                 .build();
     }
 
@@ -38,8 +47,12 @@ public class UserData {
 
     public UserDTO toUserDTO(){
         return UserDTO.builder()
+                .vehicleNo(vehicleNo)
                 .name(name)
                 .email(email)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .lastLogin(lastLogin)
                 .build();
     }
 }

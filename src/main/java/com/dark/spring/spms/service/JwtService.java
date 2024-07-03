@@ -3,6 +3,7 @@ package com.dark.spring.spms.service;
 import com.dark.spring.spms.data.UserData;
 import com.dark.spring.spms.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -23,11 +24,11 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
-    public String extractUsername(String token) {
+    public String extractUsername(String token) throws JwtException, IllegalArgumentException {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws JwtException, IllegalArgumentException {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -37,7 +38,7 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserData userDetails) {
-        return buildToken(extraClaims, userDetails, jwtExpiration);
+        return buildToken(extraClaims, userDetails, getExpirationTime());
     }
 
     public long getExpirationTime() {
@@ -59,20 +60,20 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, User userDetails) {
+    public boolean isTokenValid(String token, User userDetails) throws JwtException, IllegalArgumentException {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getEmail())) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(String token) throws JwtException, IllegalArgumentException {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    private Date extractExpiration(String token) throws JwtException, IllegalArgumentException {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) throws JwtException, IllegalArgumentException {
         return Jwts
                 .parser()
                 .verifyWith(getSignInKey())
@@ -82,7 +83,6 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        System.out.println("JwtService:: secretKey " + secretKey);
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }

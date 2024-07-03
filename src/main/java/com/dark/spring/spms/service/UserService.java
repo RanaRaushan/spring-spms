@@ -1,7 +1,7 @@
 package com.dark.spring.spms.service;
 
 import com.dark.spring.spms.data.UserData;
-import com.dark.spring.spms.entity.User;
+import com.dark.spring.spms.entity.Customer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +13,9 @@ public interface UserService {
 
     UserData getUserByEmail(String emailId);
 
-    User register(User user);
+    UserData register(Customer user);
 
     List<UserData> getAllUser();
+
+    void updateLastLogin(UserData userData);
 }

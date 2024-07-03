@@ -1,13 +1,17 @@
 package com.dark.spring.spms.filters;
 
+import com.dark.spring.spms.dto.ErrorDTO;
 import com.dark.spring.spms.entity.User;
+import com.dark.spring.spms.exceptions.CustomExceptionHandler;
 import com.dark.spring.spms.service.JwtService;
-import com.dark.spring.spms.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private CustomExceptionHandler customExceptionHandler;
+
 
     @Override
     protected void doFilterInternal(
@@ -49,7 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             final String jwt = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(jwt);
-
+            // TODO: Add logs
+            System.out.println("TEST userEmail is " + userEmail + " And Token: " + jwt);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
@@ -66,10 +74,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-
-            filterChain.doFilter(request, response);
-        } catch (Exception exception) {
-            handlerExceptionResolver.resolveException(request, response, null, exception);
+        } catch (JwtException jwtException) {
+            ResponseEntity<ErrorDTO> jwtErrorDTO = customExceptionHandler.handleJwtException(jwtException);
+            response.setStatus(jwtErrorDTO.getStatusCode().value());
+            response.setContentType("application/json");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(jwtErrorDTO));
+            return;
         }
+
+        filterChain.doFilter(request, response);
+
     }
 }

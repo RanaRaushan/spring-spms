@@ -31,9 +31,8 @@ public class UsersController {
 //    Run at http://localhost:8080/users/1
     @GetMapping(value = "/{userId}")
     public EntityModel<UserDTO> getUser(@PathVariable int userId) {
-        System.out.println("Fetching user for Id:"+ userId);
         UserData userData = userService.getUserById(userId);
-        EntityModel<UserDTO> entityModel = EntityModel.of(UserDTO.builder().name(userData.getName()).build());
+        EntityModel<UserDTO> entityModel = EntityModel.of(userData.toUserDTO());
 
         WebMvcLinkBuilder webMvcLinkBuilder = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllUsers());
         entityModel.add(webMvcLinkBuilder.withRel("all-users"));

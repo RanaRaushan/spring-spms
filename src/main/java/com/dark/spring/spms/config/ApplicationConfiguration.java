@@ -1,6 +1,7 @@
 package com.dark.spring.spms.config;
 
 import com.dark.spring.spms.dao.UserDao;
+import com.dark.spring.spms.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ public class ApplicationConfiguration {
     @Bean
     UserDetailsService userDetailsService() {
         return username -> userDao.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: "+ username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: "+ username));
     }
 
     @Bean

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Data
 @JsonFilter("ignorePasswordFilter")
@@ -21,6 +23,7 @@ public class LoginUserDTO {
                 .name(name)
                 .email(email)
                 .password(password)
+                .lastLogin(LocalDateTime.now().toString())
                 .build();
     }
 }

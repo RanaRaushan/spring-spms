@@ -1,16 +1,16 @@
 package com.dark.spring.spms.dao;
 
-import com.dark.spring.spms.entity.User;
+import com.dark.spring.spms.entity.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserDao extends JpaRepository<User, Integer>  {
+public interface UserDao extends JpaRepository<Customer, Integer>  {
 
-    Optional<User> getUserById(int id);
+    Optional<Customer> getUserById(int id);
 
-    Optional<User> findByEmail(String emailId);
+    Optional<Customer> findByEmail(String emailId);
 
 }

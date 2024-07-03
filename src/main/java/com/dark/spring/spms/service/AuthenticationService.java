@@ -11,5 +11,5 @@ public interface AuthenticationService {
 
     LoginUserDTO register(UserData userData);
 
-    AccessDTO authenticate(UserData userData);
+    AccessDTO authenticate(LoginUserDTO loginUserDTO);
 }

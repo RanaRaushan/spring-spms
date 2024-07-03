@@ -2,15 +2,16 @@ package com.dark.spring.spms.service;
 
 import com.dark.spring.spms.dao.UserDao;
 import com.dark.spring.spms.data.UserData;
-import com.dark.spring.spms.entity.User;
+import com.dark.spring.spms.entity.Customer;
 import com.dark.spring.spms.exceptions.UserAlreadyExistException;
+import com.dark.spring.spms.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Repository
 public class UserServiceImpl implements UserService{
@@ -19,35 +20,40 @@ public class UserServiceImpl implements UserService{
     UserDao userDao;
 
     @Override
-    public UserData getUserById(int id) {
-        User user = userDao.getUserById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return UserData.builder()
-                .name(user.getName())
-                .build();
+    public UserData getUserById(int id) throws UserNotFoundException {
+        Customer user = userDao.getUserById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.toData();
     }
 
     @Override
-    public UserData getUserByEmail(String emailId)  throws UsernameNotFoundException{
-        User user = userDao.findByEmail(emailId).orElseThrow(() -> new UsernameNotFoundException("User1 not found"));
-        return UserData.builder()
-                .name(user.getName())
-                .build();
+    public UserData getUserByEmail(String emailId) throws UserNotFoundException {
+        Customer user = userDao.findByEmail(emailId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.toData();
     }
 
     @Override
-    public User register(User user) {
+    public UserData register(Customer user) {
         if (userDao.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistException("User already exist with email : " + user.getEmail());
         }
-        return userDao.save(user);
+        return userDao.save(user).toData();
     }
 
     @Override
     public List<UserData> getAllUser() {
         return userDao.findAll().stream()
-                .map(user -> UserData.builder()
-                        .name(user.getName())
-                        .build())
+                .map(Customer::toData)
                 .toList();
+    }
+
+    @Override
+    public void updateLastLogin(UserData userData) throws UserNotFoundException {
+        Optional<Customer> customer = userDao.findByEmail(userData.getEmail());
+        if (customer.isPresent()) {
+            customer.get().setLastLogin(LocalDateTime.now());
+            userDao.save(customer.get());
+        } else {
+            throw new UserNotFoundException("User not found");
+        }
     }
 }

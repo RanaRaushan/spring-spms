@@ -13,4 +13,10 @@ public class UserDTO {
 
     private String vehicleNo;
 
+    private String createdAt;
+
+    private String updatedAt;
+
+    private String lastLogin;
+
 }

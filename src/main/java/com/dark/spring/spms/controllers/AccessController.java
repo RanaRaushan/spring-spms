@@ -23,12 +23,11 @@ public class AccessController {
 
     @GetMapping(value = "/login")
     public AccessDTO login(@RequestBody LoginUserDTO loginUserDTO) {
-        return authenticationService.authenticate(loginUserDTO.toData());
+        return authenticationService.authenticate(loginUserDTO);
     }
 
     @PostMapping(value = "/register")
     public MappingJacksonValue register(@RequestBody LoginUserDTO loginUserDTO) {
-        System.out.println("Inside Register of AccessController " + loginUserDTO.toString());
         MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(authenticationService.register(loginUserDTO.toData()));
         FilterProvider ignorePasswordFilter = new SimpleFilterProvider()
                 .addFilter("ignorePasswordFilter", SimpleBeanPropertyFilter.serializeAllExcept("password"));
