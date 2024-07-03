@@ -24,7 +24,7 @@ public class WebConfig extends DelegatingWebMvcConfiguration {
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
         RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
         System.out.println("Inside createRequestMappingHandlerMapping");
-        mapping.setPathPrefixes(Collections.singletonMap("/api/v2", clazz -> clazz.getPackage().getName().startsWith("com.dark.spring.spms")));
+        mapping.setPathPrefixes(Collections.singletonMap("/api/v1", clazz -> clazz.getPackage().getName().startsWith("com.dark.spring.spms")));
         return mapping;
     }
 }

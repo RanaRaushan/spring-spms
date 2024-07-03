@@ -30,10 +30,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserData register(int id) {
-        User user = userDao.getUserById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return UserData.builder()
-                .name(user.getName())
-                .build();
+    public User register(User user) {
+//        User user = userDao.getUserById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//        return UserData.builder()
+//                .name(user.getName())
+//                .build();
+        user.setPassword(user.getPassword());
+        return userDao.save(user);
     }
 }
