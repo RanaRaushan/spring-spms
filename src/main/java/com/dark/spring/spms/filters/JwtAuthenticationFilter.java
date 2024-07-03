@@ -1,6 +1,8 @@
 package com.dark.spring.spms.filters;
 
+import com.dark.spring.spms.entity.User;
 import com.dark.spring.spms.service.JwtService;
+import com.dark.spring.spms.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -31,15 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
-//    public JwtAuthenticationFilter(
-//            JwtService jwtService,
-//            UserDetailsService userDetailsService,
-//            HandlerExceptionResolver handlerExceptionResolver
-//    ) {
-//        this.jwtService = jwtService;
-//        this.userDetailsService = userDetailsService;
-//        this.handlerExceptionResolver = handlerExceptionResolver;
-//    }
 
     @Override
     protected void doFilterInternal(
@@ -61,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                User userDetails = (User) this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

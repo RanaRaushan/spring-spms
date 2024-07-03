@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -14,6 +15,7 @@ import org.hibernate.type.SqlTypes;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @SuperBuilder
 @Entity
 public class Customer extends User {

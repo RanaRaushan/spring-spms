@@ -4,6 +4,8 @@ import com.dark.spring.spms.data.UserData;
 import com.dark.spring.spms.entity.User;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface UserService {
 
@@ -12,4 +14,6 @@ public interface UserService {
     UserData getUserByEmail(String emailId);
 
     User register(User user);
+
+    List<UserData> getAllUser();
 }

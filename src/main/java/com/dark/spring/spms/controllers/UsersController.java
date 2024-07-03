@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,16 +24,13 @@ public class UsersController {
 
     @GetMapping()
     public List<UserDTO> getAllUsers() {
-        // TODO::
-        System.out.println("Fetching all user:");
-        return Collections.singletonList(UserDTO.builder().name("Rana Rana").build());
+        return userService.getAllUser().stream().map(UserData::toUserDTO).toList();
     }
 
 
 //    Run at http://localhost:8080/users/1
     @GetMapping(value = "/{userId}")
     public EntityModel<UserDTO> getUser(@PathVariable int userId) {
-        // TODO::
         System.out.println("Fetching user for Id:"+ userId);
         UserData userData = userService.getUserById(userId);
         EntityModel<UserDTO> entityModel = EntityModel.of(UserDTO.builder().name(userData.getName()).build());

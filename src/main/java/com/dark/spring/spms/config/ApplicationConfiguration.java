@@ -20,7 +20,7 @@ public class ApplicationConfiguration {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userDao.getUserByEmail(username)
+        return username -> userDao.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: "+ username));
     }
 

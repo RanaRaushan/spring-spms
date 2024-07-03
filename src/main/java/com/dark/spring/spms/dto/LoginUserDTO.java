@@ -1,15 +1,13 @@
 package com.dark.spring.spms.dto;
 
 import com.dark.spring.spms.data.UserData;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
 @Builder
-@Getter
-@Setter
-@ToString
+@Data
+@JsonFilter("ignorePasswordFilter")
 public class LoginUserDTO {
 
     private String name;

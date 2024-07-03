@@ -12,14 +12,25 @@ import java.time.LocalDateTime;
 public class CustomExceptionHandler {
 
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> handleException(Exception ex) {
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<ErrorDTO> handleUserAlreadyExistException(Exception ex) {
+        System.out.println("Calling UserAlreadyExistException handler");
         ErrorDTO errorDTO = ErrorDTO.builder()
-                .timeStamp(LocalDateTime.now())
+                .timeStamp(LocalDateTime.now().toString())
                 .message(ex.getMessage())
                 .build();
-        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorDTO> handleException(Exception ex) {
+//        System.out.println("Calling CustomExceptionHandler for all Exception.class");
+//        ErrorDTO errorDTO = ErrorDTO.builder()
+//                .timeStamp(LocalDateTime.now().toString())
+//                .message(ex.getMessage())
+//                .build();
+//        return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 //    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
 //    public ResponseEntity<ProblemDetail> handleMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex) {

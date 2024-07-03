@@ -1,8 +1,13 @@
 package com.dark.spring.spms.controllers;
 
+import com.dark.spring.spms.dto.AccessDTO;
 import com.dark.spring.spms.dto.LoginUserDTO;
 import com.dark.spring.spms.service.AuthenticationService;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +22,17 @@ public class AccessController {
     AuthenticationService authenticationService;
 
     @GetMapping(value = "/login")
-    public LoginUserDTO login(LoginUserDTO loginUserDTO) {
-        // TODO:: Implement
-        System.out.println("login:");
-        authenticationService.authenticate();
-        return null;
+    public AccessDTO login(@RequestBody LoginUserDTO loginUserDTO) {
+        return authenticationService.authenticate(loginUserDTO.toData());
     }
 
     @PostMapping(value = "/register")
-    public LoginUserDTO register(@RequestBody LoginUserDTO loginUserDTO) {
+    public MappingJacksonValue register(@RequestBody LoginUserDTO loginUserDTO) {
         System.out.println("Inside Register of AccessController " + loginUserDTO.toString());
-        return authenticationService.register(loginUserDTO.toData());
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(authenticationService.register(loginUserDTO.toData()));
+        FilterProvider ignorePasswordFilter = new SimpleFilterProvider()
+                .addFilter("ignorePasswordFilter", SimpleBeanPropertyFilter.serializeAllExcept("password"));
+        mappingJacksonValue.setFilters(ignorePasswordFilter);
+        return mappingJacksonValue;
     }
 }

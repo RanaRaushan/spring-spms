@@ -1,6 +1,7 @@
 package com.dark.spring.spms.data;
 
 import com.dark.spring.spms.dto.LoginUserDTO;
+import com.dark.spring.spms.dto.UserDTO;
 import com.dark.spring.spms.entity.Customer;
 import com.dark.spring.spms.entity.User;
 import lombok.Builder;
@@ -28,9 +29,17 @@ public class UserData {
                 .build();
     }
 
-    public LoginUserDTO toDTO(){
+    public LoginUserDTO toLoginDTO(){
         return LoginUserDTO.builder()
                 .name(name)
+                .email(email)
+                .build();
+    }
+
+    public UserDTO toUserDTO(){
+        return UserDTO.builder()
+                .name(name)
+                .email(email)
                 .build();
     }
 }

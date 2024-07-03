@@ -3,9 +3,14 @@ package com.dark.spring.spms.service;
 import com.dark.spring.spms.dao.UserDao;
 import com.dark.spring.spms.data.UserData;
 import com.dark.spring.spms.entity.User;
+import com.dark.spring.spms.exceptions.UserAlreadyExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserServiceImpl implements UserService{
@@ -22,8 +27,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserData getUserByEmail(String emailId) {
-        User user = userDao.getUserByEmail(emailId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public UserData getUserByEmail(String emailId)  throws UsernameNotFoundException{
+        User user = userDao.findByEmail(emailId).orElseThrow(() -> new UsernameNotFoundException("User1 not found"));
         return UserData.builder()
                 .name(user.getName())
                 .build();
@@ -31,11 +36,18 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User register(User user) {
-//        User user = userDao.getUserById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//        return UserData.builder()
-//                .name(user.getName())
-//                .build();
-        user.setPassword(user.getPassword());
+        if (userDao.findByEmail(user.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("User already exist with email : " + user.getEmail());
+        }
         return userDao.save(user);
+    }
+
+    @Override
+    public List<UserData> getAllUser() {
+        return userDao.findAll().stream()
+                .map(user -> UserData.builder()
+                        .name(user.getName())
+                        .build())
+                .toList();
     }
 }

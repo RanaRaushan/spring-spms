@@ -1,22 +1,17 @@
 package com.dark.spring.spms.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.time.LocalDateTime;
+import lombok.Data;
 
 
 @Builder
-@Getter
-@Setter
-@ToString
+@Data
 public class ErrorDTO {
 
-    private LocalDateTime timeStamp;
+    private String timeStamp;
 
     private String message;
 
-    private String details;
+    @Builder.Default
+    private String details = "";
 }
