@@ -16,7 +16,11 @@ public class UserData {
 
     private String email;
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
+
+    private String fullName;
 
     private String password;
 
@@ -30,9 +34,10 @@ public class UserData {
 
     public Customer toModel(){
         return Customer.builder()
-                .vehicleNo(vehicleNo)
+                .firstName(firstName)
+                .lastName(lastName)
+                .name(firstName + " " + lastName)
                 .email(email)
-                .name(name)
                 .password(new BCryptPasswordEncoder().encode(password))
                 .lastLogin(LocalDateTime.parse(lastLogin))
                 .build();
@@ -40,7 +45,8 @@ public class UserData {
 
     public LoginUserDTO toLoginDTO(){
         return LoginUserDTO.builder()
-                .name(name)
+                .firstName(firstName)
+                .lastName(lastName)
                 .email(email)
                 .build();
     }
@@ -48,7 +54,8 @@ public class UserData {
     public UserDTO toUserDTO(){
         return UserDTO.builder()
                 .vehicleNo(vehicleNo)
-                .name(name)
+                .firstName(firstName)
+                .lastName(lastName)
                 .email(email)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)

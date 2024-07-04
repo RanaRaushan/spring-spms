@@ -18,25 +18,40 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @SuperBuilder
 @Entity
 public class Customer extends User {
 
-    @Column(name = "vehicle_no")
+    @Column(name = "first_name")
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    private String vehicleNo;
+    private String firstName;
+
+    @Column(name = "last_name")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private String lastName;
 
 
     public UserData toData(){
         return UserData.builder()
-                .name(getName())
+                .firstName(firstName)
+                .lastName(lastName)
+                .fullName(getName())
                 .email(getEmail())
                 .password(getPassword())
-                .vehicleNo(getVehicleNo())
                 .createdAt(Objects.nonNull(getCreatedAt()) ? getCreatedAt().toString() : "")
                 .updatedAt(Objects.nonNull(getUpdatedAt()) ? getUpdatedAt().toString() : "")
                 .lastLogin(Objects.nonNull(getLastLogin()) ? getLastLogin().toString() : "")
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "First Name='" + firstName + '\'' +
+                ", Last Name='" + lastName + '\'' +
+                ", email='" + getEmail() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", lastLogin=" + getLastLogin() + '\'' +
+                '}';
     }
 }

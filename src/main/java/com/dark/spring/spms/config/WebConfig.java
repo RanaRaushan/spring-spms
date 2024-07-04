@@ -10,15 +10,15 @@ import java.util.Collections;
 @Configuration
 public class WebConfig extends DelegatingWebMvcConfiguration {
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        System.out.println("TEST Inside addCorsMappings");
-//        registry.addMapping("/**")
-//                .allowedOrigins("http://example.com")
-//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-//                .allowedHeaders("*")
-//                .allowCredentials(true);
-//    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        System.out.println("TEST Inside addCorsMappings");
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
 
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {

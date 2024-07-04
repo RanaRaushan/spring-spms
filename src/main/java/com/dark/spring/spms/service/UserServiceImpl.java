@@ -6,7 +6,6 @@ import com.dark.spring.spms.entity.Customer;
 import com.dark.spring.spms.exceptions.UserAlreadyExistException;
 import com.dark.spring.spms.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

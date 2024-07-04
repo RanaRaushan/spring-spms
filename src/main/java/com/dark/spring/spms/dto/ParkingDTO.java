@@ -5,20 +5,18 @@ import lombok.Data;
 
 @Builder
 @Data
-public class UserDTO {
+public class ParkingDTO {
 
-    private String firstName;
+    private String slotName;
 
-    private String lastName;
+    private Boolean available;
 
-    private String email;
+    private UserDTO occupiedBy;
 
     private String vehicleNo;
 
     private String createdAt;
 
     private String updatedAt;
-
-    private String lastLogin;
 
 }

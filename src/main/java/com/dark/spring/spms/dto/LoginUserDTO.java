@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 @JsonFilter("ignorePasswordFilter")
 public class LoginUserDTO {
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String email;
 
@@ -20,7 +22,9 @@ public class LoginUserDTO {
 
     public UserData toData(){
         return UserData.builder()
-                .name(name)
+                .firstName(firstName)
+                .lastName(lastName)
+                .fullName(firstName + " " + lastName)
                 .email(email)
                 .password(password)
                 .lastLogin(LocalDateTime.now().toString())
