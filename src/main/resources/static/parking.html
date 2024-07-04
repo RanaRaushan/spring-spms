@@ -320,6 +320,10 @@
 			const slotName = document.getElementById('slot-name').value;
 			const vehicleNumber = document.getElementById('vehicle-number').value;
 			const email = document.getElementById('user-email').value;
+			if (!slotName.trim() || !vehicleNumber.trim() || !email.trim()) {
+				alert('Please fill in all fields');
+				return;
+			  }
 			publish_booking_data(slotName, vehicleNumber, email);
 			closePopup();
 		};
