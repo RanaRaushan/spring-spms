@@ -24,8 +24,6 @@ public class UserData {
 
     private String password;
 
-    private String vehicleNo;
-
     private String createdAt;
 
     private String updatedAt;
@@ -53,9 +51,9 @@ public class UserData {
 
     public UserDTO toUserDTO(){
         return UserDTO.builder()
-                .vehicleNo(vehicleNo)
                 .firstName(firstName)
                 .lastName(lastName)
+                .fullName(fullName)
                 .email(email)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)

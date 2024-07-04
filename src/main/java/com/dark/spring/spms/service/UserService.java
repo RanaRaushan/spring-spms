@@ -9,6 +9,8 @@ import java.util.List;
 @Service
 public interface UserService {
 
+    Customer getUserModelByEmail(String email);
+
     UserData getUserById(int id);
 
     UserData getUserByEmail(String emailId);

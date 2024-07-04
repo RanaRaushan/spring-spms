@@ -15,4 +15,6 @@ public interface ParkingService {
     ParkingData getParkingByIdOrSlotName(Object slotId);
 
     ParkingData updateParking(BookingDTO bookingDTO);
+
+    ParkingData emptyParkingSlot(BookingDTO bookingDTO);
 }

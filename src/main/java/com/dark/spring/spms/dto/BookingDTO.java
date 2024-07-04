@@ -11,4 +11,6 @@ public class BookingDTO {
 
     private String vehicleNo;
 
+    private String user;
+
 }

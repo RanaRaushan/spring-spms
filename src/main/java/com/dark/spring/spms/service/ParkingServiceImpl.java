@@ -25,6 +25,9 @@ public class ParkingServiceImpl implements ParkingService {
     @Autowired
     CurrentUserService currentUserService;
 
+    @Autowired
+    UserService userService;
+
     @Override
     public List<ParkingData> getAllParkingBy(Map<String, Object> queryParams) {
         List<ParkingSlot> parkingSlots = parkingSlotDao.findAll(
@@ -84,8 +87,25 @@ public class ParkingServiceImpl implements ParkingService {
             parkingSlot = parkingSlotDao.findByIdOrSlotName(-1, String.valueOf(bookingDTO.getSlot()));
         }
         if(parkingSlot.isPresent()) {
-            parkingSlot.get().setOccupiedBy(currentUserService.getCurrentUser());
+            parkingSlot.get().setOccupiedBy(userService.getUserModelByEmail(bookingDTO.getUser()));
             parkingSlot.get().setVehicleNo(bookingDTO.getVehicleNo());
+            return parkingSlotDao.save(parkingSlot.get()).toData();
+        } else {
+            throw new ParkingSlotNotFoundException("Parking not found");
+        }
+    }
+
+    @Override
+    public ParkingData emptyParkingSlot(BookingDTO bookingDTO) {
+        Optional<ParkingSlot> parkingSlot;
+        if (isInteger(bookingDTO.getSlot())) {
+            parkingSlot = parkingSlotDao.findByIdOrSlotName(Integer.valueOf(bookingDTO.getSlot().toString()), "");
+        } else {
+            parkingSlot = parkingSlotDao.findByIdOrSlotName(-1, String.valueOf(bookingDTO.getSlot()));
+        }
+        if(parkingSlot.isPresent()) {
+            parkingSlot.get().setOccupiedBy(null);
+            parkingSlot.get().setVehicleNo(null);
             return parkingSlotDao.save(parkingSlot.get()).toData();
         } else {
             throw new ParkingSlotNotFoundException("Parking not found");

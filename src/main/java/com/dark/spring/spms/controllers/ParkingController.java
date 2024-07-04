@@ -56,4 +56,11 @@ public class ParkingController {
         ParkingData parkingData = parkingService.updateParking(bookingDTO);
         return parkingData.toDTO();
     }
+
+    @MessageMapping("/users/release_booking")
+    @SendTo("/topic/booking_updates")
+    public ParkingDTO parking_booking_release(@RequestBody BookingDTO bookingDTO) {
+        ParkingData parkingData = parkingService.emptyParkingSlot(bookingDTO);
+        return parkingData.toDTO();
+    }
 }

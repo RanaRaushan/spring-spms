@@ -11,9 +11,9 @@ public class UserDTO {
 
     private String lastName;
 
-    private String email;
+    private String fullName;
 
-    private String vehicleNo;
+    private String email;
 
     private String createdAt;
 

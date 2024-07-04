@@ -19,6 +19,11 @@ public class UserServiceImpl implements UserService{
     UserDao userDao;
 
     @Override
+    public Customer getUserModelByEmail(String email) {
+        return userDao.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
     public UserData getUserById(int id) throws UserNotFoundException {
         Customer user = userDao.getUserById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.toData();
