@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class ParkingDTO {
 
+    private int slotId;
+
     private String slotName;
 
     private Boolean available;

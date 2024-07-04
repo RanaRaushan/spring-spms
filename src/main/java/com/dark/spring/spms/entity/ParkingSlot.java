@@ -49,6 +49,7 @@ public class ParkingSlot extends BaseModel{
 
     public ParkingData toData(){
         return ParkingData.builder()
+                .slotId(getId())
                 .slotName(slotName)
                 .available(available)
                 .occupiedBy(Objects.nonNull(occupiedBy) ? occupiedBy.toData() : null)

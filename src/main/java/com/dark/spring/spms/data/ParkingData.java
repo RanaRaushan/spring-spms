@@ -11,6 +11,8 @@ import java.util.Objects;
 @Data
 public class ParkingData {
 
+    private int slotId;
+
     private String slotName;
 
     private Boolean available;
@@ -33,6 +35,7 @@ public class ParkingData {
 
     public ParkingDTO toDTO(){
         return ParkingDTO.builder()
+                .slotId(slotId)
                 .slotName(slotName)
                 .available(available)
                 .occupiedBy(Objects.nonNull(occupiedBy) ? occupiedBy.toUserDTO() : null)
