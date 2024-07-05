@@ -22,6 +22,14 @@ Configuration
 - Configure database connection properties in application.properties
   - Create <application-local.properties> file and update data as per your requirement (Refer to application-dev.properties)
 
+Features
+
+- Book available parking slots in real-time
+- Receive updates on slot availability through WebSockets
+- View current slot status (available/occupied)
+- JWT login user
+
+
 Usage
 
 
