@@ -54,13 +54,19 @@ public class ParkingController {
         System.out.println("Rana current User " + currentUserService.getCurrentUser());
         System.out.println("Rana calling parking_booking_update " + bookingDTO.toString());
         ParkingData parkingData = parkingService.updateParking(bookingDTO);
-        return parkingData.toDTO();
+        ParkingDTO parkingDTO = parkingData.toDTO();
+        parkingDTO.setEvent("Slot_Booking");
+        parkingDTO.setEventMessage("Parking Slot Booked");
+        return parkingDTO;
     }
 
     @MessageMapping("/users/release_booking")
     @SendTo("/topic/booking_updates")
     public ParkingDTO parking_booking_release(@RequestBody BookingDTO bookingDTO) {
         ParkingData parkingData = parkingService.emptyParkingSlot(bookingDTO);
-        return parkingData.toDTO();
+        ParkingDTO parkingDTO = parkingData.toDTO();
+        parkingDTO.setEvent("Release_Booking");
+        parkingDTO.setEventMessage("Parking Slot Released");
+        return parkingDTO;
     }
 }

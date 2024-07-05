@@ -21,4 +21,8 @@ public class ParkingDTO {
 
     private String updatedAt;
 
+    private String event;
+
+    private String eventMessage;
+
 }

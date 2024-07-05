@@ -14,6 +14,8 @@ public class ErrorDTO {
 
     private String message;
 
+    private String event;
+
     @Builder.Default
     private String details = "";
 
@@ -21,6 +23,7 @@ public class ErrorDTO {
         return ErrorDTO.builder()
                 .timeStamp(LocalDateTime.now().toString())
                 .message(ex.getMessage())
+                .event("Error")
                 .build();
     }
 }
