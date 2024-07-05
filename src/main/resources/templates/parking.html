@@ -3,6 +3,48 @@
 <head>
 	<title>Parking Slot Booking</title>
 	<style>
+		#snackbar {
+		  visibility: hidden;
+		  min-width: 250px;
+		  margin-left: -125px;
+		  background-color: #333;
+		  color: #fff;
+		  text-align: center;
+		  border-radius: 2px;
+		  padding: 16px;
+		  position: fixed;
+		  z-index: 1;
+		  left: 50%;
+		  bottom: 30px;
+		  font-size: 17px;
+		}
+
+		#snackbar.show {
+		  visibility: visible;
+		  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+		  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+		}
+
+		@-webkit-keyframes fadein {
+		  from {bottom: 0; opacity: 0;}
+		  to {bottom: 30px; opacity: 1;}
+		}
+
+		@keyframes fadein {
+		  from {bottom: 0; opacity: 0;}
+		  to {bottom: 30px; opacity: 1;}
+		}
+
+		@-webkit-keyframes fadeout {
+		  from {bottom: 30px; opacity: 1;}
+		  to {bottom: 0; opacity: 0;}
+		}
+
+		@keyframes fadeout {
+		  from {bottom: 30px; opacity: 1;}
+		  to {bottom: 0; opacity: 0;}
+		}
+
 		.loader {
 		  border: 16px solid #f3f3f3;
 		  border-radius: 50%;
@@ -229,7 +271,7 @@
                     gridItem.onclick = () => showBookingPopup(slot);
                 } else {
                     gridItem.classList.add("booked")
-                    gridItem.innerHTML = `Booked by ${slot.occupiedBy.fullName != null && slot.occupiedBy.fullName !== '' ? slot.occupiedBy.fullName : slot.occupiedBy.email} <br> Vehicle: ${slot.vehicleNo}`;
+                    gridItem.innerHTML = `${slot.slotName} booked by ${slot.occupiedBy.fullName != null && slot.occupiedBy.fullName !== '' ? slot.occupiedBy.fullName : slot.occupiedBy.email} <br> Vehicle: ${slot.vehicleNo}`;
                     gridItem.onclick = null;
                     create_x_button(gridItem, slot);
                 }
@@ -238,9 +280,16 @@
             function subscribe_booking() {
                 // Subscribe to booking updates
                 stompClient.subscribe('/topic/booking_updates', (message) => {
-                    const slot = JSON.parse(message.body);
-                    const gridItem = document.querySelector(`.grid-item[data-grid-id=grid-${slot.slotId}]`)
-                    update_html_content(gridItem, slot)
+                	const payload = JSON.parse(message.body);
+                	if (payload.event != 'undefined' && payload.event === "Error") {
+                		showSnackBar(payload.message)
+                	} else {
+						const slot = payload;
+						const gridItem = document.querySelector(`.grid-item[data-grid-id=grid-${slot.slotId}]`)
+						update_html_content(gridItem, slot)
+						showSnackBar(`${slot.slotName} ${payload.eventMessage}`)
+                    }
+                    console.log(message)
                 });
             }
 
@@ -347,9 +396,27 @@
 			function closePopup() {
 				document.getElementById('booking-popup').style.display = 'none';
 			};
-
-
             connect();
+
+			var snackbarQueue = [];
+            function showSnackBar(msg) {
+            	console.log("calling showSnackBar")
+			  	snackbarQueue.push(msg);
+			  	showNextSnackBar();
+			}
+
+			function showNextSnackBar() {
+				if (snackbarQueue.length === 0) return;
+				if (document.getElementById("snackbar").classList.contains("show")) return;
+				var msg = snackbarQueue.shift();
+				var snackbarElement = document.getElementById("snackbar");
+				snackbarElement.className = "show";
+				snackbarElement.textContent = msg;
+				setTimeout(function(){
+					snackbarElement.className = snackbarElement.className.replace("show", "");
+					setTimeout(showNextSnackBar, 100);
+				}, 3000);
+			}
         }
 	</script>
 </head>
@@ -377,6 +444,6 @@
 		</div>
 	  </div>
 	</div>
-
+	<div id="snackbar"></div>
 </body>
 </html>
