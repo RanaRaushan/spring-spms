@@ -21,7 +21,7 @@ public class AccessController {
     @Autowired
     AuthenticationService authenticationService;
 
-    @GetMapping(value = "/login")
+    @PostMapping()
     public AccessDTO login(@RequestBody LoginUserDTO loginUserDTO) {
         return authenticationService.authenticate(loginUserDTO);
     }
