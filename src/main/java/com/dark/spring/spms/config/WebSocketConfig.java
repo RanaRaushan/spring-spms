@@ -64,20 +64,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 				final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 				if (accessor != null && (StompCommand.CONNECT == accessor.getCommand())) {
 					String jwtToken = "";
-					final String url = accessor.getFirstNativeHeader("destination");
 					final String authHeader = accessor.getFirstNativeHeader("Authorization");
 					if (authHeader != null && authHeader.startsWith("Bearer ")) {
 						jwtToken = authHeader.substring(7);
 					}
-
-                    final String token = jwtToken;
-					LOG.info("accessor is {}, and token {}", accessor.getCommand(), token);
+					LOG.info("accessor is {}, and token {}", accessor.getCommand(), jwtToken);
                     try {
-						String userEmail = jwtService.extractUsername(token);
+						String userEmail = jwtService.extractUsername(jwtToken);
 						Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 						User userDetails = (User) userDetailsService.loadUserByUsername(userEmail);
-						LOG.info("Rana authentication "+ authentication + " userEmail is " + userEmail + " And Token: " + token + " And userDetails: " + userDetails);
-                        if (jwtService.isTokenValid(token, userDetails)) {
+						LOG.info("Rana authentication "+ authentication + " userEmail is " + userEmail + " And Token: " + jwtToken + " And userDetails: " + userDetails);
+                        if (jwtService.isTokenValid(jwtToken, userDetails)) {
                             LOG.info("Rana TokenValid");
                             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                     userDetails,
