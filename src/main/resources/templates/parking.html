@@ -131,150 +131,230 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 	<script>
-		let retryCount = 0;
-		const maxRetries = 3; // Set the maximum number of retries
-		const retryInterval = 1000; // Set the retry interval in milliseconds
-		const testToken = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJyYW5hQGdtYWlsLmNvbSIsImlhdCI6MTcyMDE2ODkwMSwiZXhwIjoxNzIwMTcwNzAxfQ.oBdurckDt2CNIYhIEZvEjbf6QoGZbor3quHAuaKDYRzn8U-_bUOK6_iunU-bpuA-"
-		const stompClient = new StompJs.Client({
-		  brokerURL: 'ws://localhost:8080/spms-websocket',
-		  debug: function (str) {
-			//console.log(str);
-		  },
-		  reconnectDelay: retryInterval,
-		  connectHeaders: {
-			token: testToken,
-		  },
-		});
+		let stompClient;
+		async function main() {
+            let retryCount = 0;
+            const maxRetries = 1; // Set the maximum number of retries
+            const retryInterval = 5000; // Set the retry interval in milliseconds
+            const token = await fetchToken("rana@gmail.com", "qwe@123")
 
-		stompClient.onConnect = (frame) => {
-		  // Do something, all subscribes must be done is this callback
-		  // This is needed because this will be executed after a (re)connect
-		  console.log('Connected: ' + frame);
-		  clear_parking_grid_content();
-		  subscribe_booking();
-		  fetch_all_parking_data();
-		  hide_spinner();
-		};
+            stompClient = new StompJs.Client({
+                brokerURL: `ws://localhost:8080/spms-websocket?${token}'`,
+                debug: function(str) {
+                    //console.log(str);
+                },
+                reconnectDelay: retryInterval,
+                connectHeaders: {
+                    'Authorization': 'Bearer ' + token
+                },
+            });
 
-		stompClient.onWebSocketError = (error) => {
-			retryCount++;
-			if (retryCount >= maxRetries) {
-				console.log('Max retry reached...Disconnecting client');
-				create_retry_button();
-				disconnect();
-			}
-			console.error('Retrying count...', retryCount);
-			console.error('Error with websocket', error);
-		};
-		stompClient.onStompError = (frame) => {
-			console.error('Broker reported error: ' + frame.headers['message']);
-			console.error('Additional details: ' + frame.body);
-		};
+            stompClient.onConnect = (frame) => {
+                // Do something, all subscribes must be done is this callback
+                // This is needed because this will be executed after a (re)connect
+                console.log('Connected: ' + frame);
+                clear_parking_grid_content();
+                subscribe_booking();
+                fetch_all_parking_data();
+                hide_spinner();
+            };
 
-		function connect() {
-			stompClient.activate();
-		}
+            stompClient.onWebSocketError = (error) => {
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    console.log('Max retry reached...Disconnecting client');
+                    create_retry_button();
+                    disconnect();
+                }
+                console.error('Retrying count...', retryCount);
+                console.error('Error with websocket', error);
+            };
+            stompClient.onStompError = (frame) => {
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    console.log('Max retry reached...Disconnecting client');
+                    create_retry_button();
+                    disconnect();
+                }
+                console.error('Retrying count...', retryCount);
+                console.error('Broker reported error: ' + frame.headers['message']);
+                console.error('Additional details: ' + frame.body);
+            };
 
-		function disconnect() {
-			stompClient.deactivate();
-		}
+            function connect() {
+                stompClient.activate();
+            }
 
-		function create_retry_button() {
-			var button = document.createElement('button');
-			button.id = 'retry-button';
-			button.textContent = 'Retry';
-			button.onclick = () => remove_retry_button();
-			hide_spinner();
-			clear_parking_grid_content()
-			document.body.appendChild(button);
-		}
+            function disconnect() {
+                stompClient.deactivate();
+            }
 
-		function remove_retry_button() {
-			retryCount = 0;
-			connect();
-			const button = document.getElementById('retry-button');
-			show_spinner();
-			button.remove();
-		}
+            function create_retry_button() {
+                var button = document.createElement('button');
+                button.id = 'retry-button';
+                button.textContent = 'Retry';
+                button.onclick = () => remove_retry_button();
+                hide_spinner();
+                clear_parking_grid_content()
+                document.body.appendChild(button);
+            }
 
-		function show_spinner() {
-			const spinner = document.getElementById('retry-loader')
-			spinner.style.display = 'flex';
-		}
+            function remove_retry_button() {
+                retryCount = 0;
+                connect();
+                const button = document.getElementById('retry-button');
+                show_spinner();
+                button.remove();
+            }
 
-		function hide_spinner() {
-			const spinner = document.getElementById('retry-loader')
-			spinner.style.display = 'none';
-		}
+            function show_spinner() {
+                const spinner = document.getElementById('retry-loader')
+                spinner.style.display = 'flex';
+            }
 
-		function clear_parking_grid_content() {
-			const grid = document.getElementById('parking-grid');
-			grid.innerHTML = '';
-		}
+            function hide_spinner() {
+                const spinner = document.getElementById('retry-loader')
+                spinner.style.display = 'none';
+            }
 
-		function update_html_content(gridItem, slot) {
-			if (slot.available) {
-				gridItem.classList.remove("booked")
-				gridItem.innerHTML = `Slot Available: ${slot.slotName}`;
-				gridItem.onclick = () => showBookingPopup(slot);
-			} else {
-				gridItem.classList.add("booked")
-				gridItem.innerHTML = `Booked by ${slot.occupiedBy.fullName != null && slot.occupiedBy.fullName !== '' ? slot.occupiedBy.fullName : slot.occupiedBy.email} <br> Vehicle: ${slot.vehicleNo}`;
-				gridItem.onclick = null;
-				create_x_button(gridItem, slot);
-			}
-		}
+            function clear_parking_grid_content() {
+                const grid = document.getElementById('parking-grid');
+                grid.innerHTML = '';
+            }
 
-		function subscribe_booking() {
-			// Subscribe to booking updates
-			stompClient.subscribe('/topic/booking_updates', (message) => {
-			  const slot = JSON.parse(message.body);
-			  const gridItem = document.querySelector(`.grid-item[data-grid-id=grid-${slot.slotId}]`)
-			  console.log("Rana gridItem.textContent", gridItem.textContent)
-			  update_html_content(gridItem, slot)
-			});
-		}
+            function update_html_content(gridItem, slot) {
+                if (slot.available) {
+                    gridItem.classList.remove("booked")
+                    gridItem.innerHTML = `Slot Available: ${slot.slotName}`;
+                    gridItem.onclick = () => showBookingPopup(slot);
+                } else {
+                    gridItem.classList.add("booked")
+                    gridItem.innerHTML = `Booked by ${slot.occupiedBy.fullName != null && slot.occupiedBy.fullName !== '' ? slot.occupiedBy.fullName : slot.occupiedBy.email} <br> Vehicle: ${slot.vehicleNo}`;
+                    gridItem.onclick = null;
+                    create_x_button(gridItem, slot);
+                }
+            }
 
-		function fetch_all_parking_data() {
-			// API call to retrieve parking slots
-			fetch('http://localhost:8080/api/v1/parking', {
-			  method: 'GET',
-			  headers: {
-				'Content-Type': 'application/json'
-			  },
-			})
-				.then(response => response.json())
-				.then(data => {
-					const gridContainer = document.getElementById('parking-grid');
-					data.forEach(slot => {
-						const gridItem = document.createElement('div');
-						gridItem.className = 'grid-item';
-						gridItem.dataset.gridId = `grid-${slot.slotId}`
-						update_html_content(gridItem, slot)
-						gridContainer.appendChild(gridItem);
-					});
+            function subscribe_booking() {
+                // Subscribe to booking updates
+                stompClient.subscribe('/topic/booking_updates', (message) => {
+                    const slot = JSON.parse(message.body);
+                    const gridItem = document.querySelector(`.grid-item[data-grid-id=grid-${slot.slotId}]`)
+                    update_html_content(gridItem, slot)
+                });
+            }
+
+            function fetch_all_parking_data() {
+                // API call to retrieve parking slots
+                fetch('http://localhost:8080/api/v1/parking', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const gridContainer = document.getElementById('parking-grid');
+                        data.forEach(slot => {
+                            const gridItem = document.createElement('div');
+                            gridItem.className = 'grid-item';
+                            gridItem.dataset.gridId = `grid-${slot.slotId}`
+                            update_html_content(gridItem, slot)
+                            gridContainer.appendChild(gridItem);
+                        });
+                    });
+            }
+            // Function to show booking popup
+            function create_x_button(gridItem, slot) {
+                var button = document.createElement('button');
+                button.className = 'release-button';
+                button.innerHTML = 'Release Booking';
+                button.onclick = () => publish_release_booking(slot);
+                gridItem.appendChild(button);
+            }
+
+            // Function to show booking popup
+            function showBookingPopup(slot) {
+                const popupContainer = document.getElementById('booking-popup');
+                popupContainer.style.display = 'flex';
+                document.getElementById('slot-name').value = slot.slotName;
+            }
+
+            // Function to fetch token for user
+            async function fetchToken(email, password) {
+                const tokenData = await fetch('http://localhost:8080/api/v1/auth', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            'email': email,
+                            'password': password
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => response.json());
+                return tokenData.token;
+            }
+
+            function publish_release_booking(slot) {
+				// Publish a booking update
+				stompClient.publish({
+					destination: "/websocket/users/release_booking",
+					body: JSON.stringify({
+						'slot': slot.slotName
+					}),
+					headers: {
+						token: token
+					},
 				});
-		}
-		// Function to show booking popup
-		function create_x_button(gridItem, slot) {
-			var button = document.createElement('button');
-			button.className = 'release-button';
-			button.innerHTML = 'Release Booking';
-			button.onclick = () => publish_release_booking(slot);
-			gridItem.appendChild(button);
-		}
+			}
 
-		// Function to show booking popup
-		function showBookingPopup(slot) {
-			const popupContainer = document.getElementById('booking-popup');
-			popupContainer.style.display = 'flex';
-			document.getElementById('slot-name').value = slot.slotName;
-		}
+			function publish_booking_data(slotName, vehicleNumber, email) {
+				// Publish a booking update
+				stompClient.publish({
+					destination: "/websocket/users/booking",
+					body: JSON.stringify({
+						'slot': slotName,
+						'vehicleNo': vehicleNumber,
+						'user': email
+					}),
+					headers: {
+						token: token
+					},
+				});
+			}
 
+			// Function to book slot
+			document.getElementById('book-btn').onclick = () => {
+				const slotName = document.getElementById('slot-name').value;
+				const vehicleNumber = document.getElementById('vehicle-number').value;
+				const email = document.getElementById('user-email').value;
+				if (!slotName.trim() || !vehicleNumber.trim() || !email.trim()) {
+					alert('Please fill in all fields');
+					return;
+				}
+				publish_booking_data(slotName, vehicleNumber, email);
+				closePopup();
+			};
+
+			document.addEventListener('click', function(event) {
+				if (event.target.classList.contains('popup-container')) {
+					document.querySelector('.popup-container').style.display = 'none';
+				}
+			});
+
+			// Function to close popup
+			function closePopup() {
+				document.getElementById('booking-popup').style.display = 'none';
+			};
+
+
+            connect();
+        }
 	</script>
 </head>
 
-<body onload="connect()">
+<body onload="main()">
 	<h1>Parking Slot Booking</h1>
 	<div class="loader" id="retry-loader"></div>
 	<div class="grid-container" id="parking-grid">
@@ -298,50 +378,5 @@
 	  </div>
 	</div>
 
-	<script>
-
-		function publish_release_booking(slot) {
-			// Publish a booking update
-			stompClient.publish({
-				destination: "/websocket/users/release_booking",
-				body: JSON.stringify({'slot': slot.slotName}),
-				headers: { token: testToken },
-			});
-		}
-
-		function publish_booking_data(slotName, vehicleNumber, email) {
-			// Publish a booking update
-			stompClient.publish({
-				destination: "/websocket/users/booking",
-				body: JSON.stringify({'slot': slotName, 'vehicleNo':vehicleNumber, 'user':email}),
-				headers: { token: testToken },
-			});
-		}
-
-		// Function to book slot
-		document.getElementById('book-btn').onclick = () => {
-			const slotName = document.getElementById('slot-name').value;
-			const vehicleNumber = document.getElementById('vehicle-number').value;
-			const email = document.getElementById('user-email').value;
-			if (!slotName.trim() || !vehicleNumber.trim() || !email.trim()) {
-				alert('Please fill in all fields');
-				return;
-			  }
-			publish_booking_data(slotName, vehicleNumber, email);
-			closePopup();
-		};
-
-		document.addEventListener('click', function(event) {
-		  if (event.target.classList.contains('popup-container')) {
-			document.querySelector('.popup-container').style.display = 'none';
-		  }
-		});
-
-		// Function to close popup
-		function closePopup() {
-			document.getElementById('booking-popup').style.display = 'none';
-		};
-
-	</script>
 </body>
 </html>
