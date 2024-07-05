@@ -2,16 +2,17 @@ package com.dark.spring.spms.exceptions;
 
 import com.dark.spring.spms.dto.ErrorDTO;
 import io.jsonwebtoken.JwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CustomExceptionHandler.class);
 
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<ErrorDTO> handleUserAlreadyExistException(Exception ex) {
@@ -35,9 +36,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleException(Exception ex) {
-        System.out.println("TEST Calling CustomExceptionHandler for all Exception.class");
-        // TODO: Add logs
-        ex.printStackTrace();
+        LOG.error("Calling CustomExceptionHandler: ", ex);
         ErrorDTO errorDTO =  ErrorDTO.buildFromException(ex);
         return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
