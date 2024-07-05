@@ -1,6 +1,8 @@
 package com.dark.spring.spms.config;
 
 import com.dark.spring.spms.filters.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,8 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     @Autowired
     private AuthenticationProvider authenticationProvider;
 
@@ -29,7 +33,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("Rana Inside securityFilterChain");
+        LOG.info("Rana Inside securityFilterChain");
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/**").authenticated()
@@ -44,7 +48,7 @@ public class SecurityConfiguration {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        System.out.println("TEST corsConfigurationSource | Calling cors from security config");
+        LOG.info("TEST corsConfigurationSource | Calling cors from security config");
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("http://localhost:8080", "*"));

@@ -2,7 +2,8 @@ package com.dark.spring.spms.config;
 
 import com.dark.spring.spms.entity.User;
 import com.dark.spring.spms.service.JwtService;
-import io.jsonwebtoken.JwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -25,12 +26,13 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import java.util.Collections;
-import java.util.jar.JarException;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+	private static final Logger LOG = LoggerFactory.getLogger(WebSocketConfig.class);
 
 	@Autowired
 	JwtService jwtService;
@@ -46,51 +48,56 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/spms-websocket");
+		registry.addEndpoint("/spms-websocket")
+				.setHandshakeHandler(new UserHandshakeHandler(jwtService, userDetailsService))
+				;
 	}
 
-	// TODO: websocket Authentication pending: Tried this but not working
-//	@Override
-//	public void configureClientInboundChannel(ChannelRegistration registration) {
-//		System.out.println("Rana calling configureClientInboundChannel");
-//		registration.interceptors(new ChannelInterceptor() {
-//			@Override
-//			public Message<?> preSend(Message<?> message, MessageChannel channel) {
-//
-//				final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-//				System.out.println("Rana accessor" + accessor);
-//				if (accessor != null && (StompCommand.CONNECT == accessor.getCommand() || StompCommand.SEND == accessor.getCommand())) {
-//					final String url = accessor.getFirstNativeHeader("destination");
-//					if (url != null && url.contains("users")) {
-//						final String token = accessor.getFirstNativeHeader("token");
-//						String userEmail = jwtService.extractUsername(token);
-//						Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//						User userDetails = (User) userDetailsService.loadUserByUsername(userEmail);
-//						System.out.println("Rana authentication "+ authentication + " userEmail is " + userEmail + " And Token: " + token + " And userDetails: " + userDetails);
-//						try {
-//							if (jwtService.isTokenValid(token, userDetails)) {
-//								System.out.println("Rana TokenValid");
-//								UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-//										userDetails,
-//										null,
-//										Collections.singleton((GrantedAuthority) () -> "USER")
-//								);
-//
-//								SecurityContextHolder.getContext().setAuthentication(authToken);
-//								authentication = SecurityContextHolder.getContext().getAuthentication();
-//								accessor.setUser(authToken);
-//								System.out.println("Rana authToken " + authToken + " userDetails is " + userDetails + " authentication.getPrincipal()" + authentication.getPrincipal() + " userDetails.getAuthorities()" + userDetails.getAuthorities());
-//							}
-//						} catch (Exception jwtException) {
-//							System.out.println("EXCEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//							jwtException.printStackTrace();
-//						}
-//					}
-//				}
-//				// Proceed with the message processing if the token is valid
-//				System.out.println("Rana return message"+ message);
-//				return message;
-//			}
-//		});
-//	}
+
+	// TODO: websocket Authentication pending: Tried this but still not able authenticate websocket
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		LOG.info("Rana calling configureClientInboundChannel");		registration.interceptors(new ChannelInterceptor() {
+			@Override
+			public Message<?> preSend(Message<?> message, MessageChannel channel) {
+
+				final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+				if (accessor != null && (StompCommand.CONNECT == accessor.getCommand())) {
+					String jwtToken = "";
+					final String url = accessor.getFirstNativeHeader("destination");
+					final String authHeader = accessor.getFirstNativeHeader("Authorization");
+					if (authHeader != null && authHeader.startsWith("Bearer ")) {
+						jwtToken = authHeader.substring(7);
+					}
+
+                    final String token = jwtToken;
+					LOG.info("accessor is {}, and token {}", accessor.getCommand(), token);
+                    try {
+						String userEmail = jwtService.extractUsername(token);
+						Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+						User userDetails = (User) userDetailsService.loadUserByUsername(userEmail);
+						LOG.info("Rana authentication "+ authentication + " userEmail is " + userEmail + " And Token: " + token + " And userDetails: " + userDetails);
+                        if (jwtService.isTokenValid(token, userDetails)) {
+                            LOG.info("Rana TokenValid");
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    Collections.singleton((GrantedAuthority) () -> "USER")
+                            );
+
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                            authentication = SecurityContextHolder.getContext().getAuthentication();
+                            accessor.setUser(authToken);
+                            LOG.info("Rana authToken " + authToken + " userDetails is " + userDetails + " authentication.getPrincipal()" + authentication.getPrincipal() + " userDetails.getAuthorities()" + userDetails.getAuthorities());
+                        }
+                    } catch (Exception jwtException) {
+                        LOG.error("EXCEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", jwtException);
+                    }
+                }
+				// Proceed with the message processing if the token is valid
+				LOG.info("Rana return message"+ message);
+				return message;
+			}
+		});
+	}
 }
