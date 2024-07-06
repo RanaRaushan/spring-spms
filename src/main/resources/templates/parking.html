@@ -181,7 +181,7 @@
             const token = await fetchToken("rana@gmail.com", "qwe@123")
 
             stompClient = new StompJs.Client({
-                brokerURL: `ws://localhost:8080/spms-websocket?${token}'`,
+                brokerURL: `/spms-websocket?${token}'`,
                 debug: function(str) {
                     //console.log(str);
                 },
@@ -295,7 +295,7 @@
 
             function fetch_all_parking_data() {
                 // API call to retrieve parking slots
-                fetch('http://localhost:8080/api/v1/parking', {
+                fetch('/api/v1/parking', {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
@@ -331,7 +331,7 @@
 
             // Function to fetch token for user
             async function fetchToken(email, password) {
-                const tokenData = await fetch('http://localhost:8080/api/v1/auth', {
+                const tokenData = await fetch('/api/v1/auth', {
                         method: 'POST',
                         body: JSON.stringify({
                             'email': email,

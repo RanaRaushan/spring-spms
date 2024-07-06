@@ -70,23 +70,27 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 					}
 					LOG.info("accessor is {}, and token {}", accessor.getCommand(), jwtToken);
                     try {
-						String userEmail = jwtService.extractUsername(jwtToken);
-						Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-						User userDetails = (User) userDetailsService.loadUserByUsername(userEmail);
-						LOG.info("Rana authentication "+ authentication + " userEmail is " + userEmail + " And Token: " + jwtToken + " And userDetails: " + userDetails);
-                        if (jwtService.isTokenValid(jwtToken, userDetails)) {
-                            LOG.info("Rana TokenValid");
-                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    Collections.singleton((GrantedAuthority) () -> "USER")
-                            );
+						if (!jwtToken.isEmpty()) {
+							String userEmail = jwtService.extractUsername(jwtToken);
+							Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+							User userDetails = (User) userDetailsService.loadUserByUsername(userEmail);
+							LOG.debug("Rana authentication " + authentication + " userEmail is " + userEmail + " And Token: " + jwtToken + " And userDetails: " + userDetails);
+							if (jwtService.isTokenValid(jwtToken, userDetails)) {
+								LOG.info("Rana TokenValid");
+								UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+										userDetails,
+										null,
+										Collections.singleton((GrantedAuthority) () -> "USER")
+								);
 
-                            SecurityContextHolder.getContext().setAuthentication(authToken);
-                            authentication = SecurityContextHolder.getContext().getAuthentication();
-                            accessor.setUser(authToken);
-                            LOG.info("Rana authToken " + authToken + " userDetails is " + userDetails + " authentication.getPrincipal()" + authentication.getPrincipal() + " userDetails.getAuthorities()" + userDetails.getAuthorities());
-                        }
+								SecurityContextHolder.getContext().setAuthentication(authToken);
+								authentication = SecurityContextHolder.getContext().getAuthentication();
+								accessor.setUser(authToken);
+								LOG.debug("Rana authToken " + authToken + " userDetails is " + userDetails + " authentication.getPrincipal()" + authentication.getPrincipal() + " userDetails.getAuthorities()" + userDetails.getAuthorities());
+							}
+						} else {
+							LOG.debug("Invalid Token found: "+ jwtToken);
+						}
                     } catch (Exception jwtException) {
                         LOG.error("EXCEPTION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", jwtException);
                     }

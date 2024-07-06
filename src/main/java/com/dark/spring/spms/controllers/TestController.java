@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 @RestController
 public class TestController {
@@ -16,22 +18,23 @@ public class TestController {
     public String parking() {
         // TODO: Temp just a HACK added to load html content to test websocket.
         System.out.println("In MyController!!! to return html content");
-        String filePath = "src/main/resources/templates/parking.html";
-        return readFile(filePath);
+        URL fileResource = this.getClass().getResource("/templates/parking.html");
+        return Objects.nonNull(fileResource) ? readFile(fileResource) : "Something went wrong!!";
     }
 
 
-    private String readFile(String path) {
-        File file = new File(path);
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+    public String readFile(URL fileResource) {
+        try (InputStreamReader streamReader = new InputStreamReader(fileResource.openStream(), StandardCharsets.UTF_8);
+             BufferedReader bufferedReader = new BufferedReader(streamReader)) {
+            StringBuilder stringBuilder = new StringBuilder();
             String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line).append("\n");
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
             }
+            return stringBuilder.toString();
         } catch (IOException e) {
             e.printStackTrace();
+            return "Error reading file";
         }
-        return content.toString();
     }
 }
