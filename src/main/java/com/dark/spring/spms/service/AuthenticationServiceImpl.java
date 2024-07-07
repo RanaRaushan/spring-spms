@@ -43,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user = userService.getUserByEmail(loginUserDTO.getEmail());
             userService.updateLastLogin(loginUserDTO.toData());
             jwtToken = jwtService.generateToken(user);
-            exp = jwtService.getExpirationTime() + "ms";
+            exp = String.valueOf(jwtService.getExpirationTime());
 
         } catch (UsernameNotFoundException e) {
             System.out.println("User not found " + e);
