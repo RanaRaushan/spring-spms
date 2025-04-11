@@ -48,6 +48,17 @@ public class ParkingController {
         return entityModel;
     }
 
+
+    @GetMapping(value = "/upload-slot-data")
+    public EntityModel<ParkingDTO> uploadParkingSlotData(@PathVariable Object slotId) {
+        ParkingData parkingData = parkingService.getParkingByIdOrSlotName(slotId);
+        EntityModel<ParkingDTO> entityModel = EntityModel.of(parkingData.toDTO());
+
+        WebMvcLinkBuilder webMvcLinkBuilder = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllParking(HashMap.newHashMap(0)));
+        entityModel.add(webMvcLinkBuilder.withRel("all-users"));
+        return entityModel;
+    }
+
     @MessageMapping("/users/booking")
     @SendTo("/topic/booking_updates")
     public ParkingDTO parking_booking_update(@RequestBody BookingDTO bookingDTO) {
