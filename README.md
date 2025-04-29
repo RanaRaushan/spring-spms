@@ -22,7 +22,7 @@ Installation via Docker
 1. Install Docker
 2. Build the application: mvn clean package
 3. Run below docker command
-   - ocker-compose build 
+   - docker-compose build 
    - docker-compose up
 
 
